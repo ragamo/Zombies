@@ -3,8 +3,8 @@ var zombies = [];
 jQuery(document).ready(function() {
 
 	// Zombies iniciales
-	for(var i=0; i<20; i++)
-		zombies.push(new zombie({x:250,y:250}));
+	//for(var i=0; i<20; i++)
+		zombies.push(new Zombie({x:250,y:250}));
 
 
 	// Mouse tracker
@@ -34,11 +34,11 @@ jQuery(document).ready(function() {
 
 	// Plus One
 	$('#plusOne').click(function() {
-		zombies.push(new zombie({x:250,y:250}));
+		zombies.push(new Zombie({x:250,y:250}));
 	});
 	$('#plusTen').click(function() {
 		for(var i=0; i<10; i++)
-			zombies.push(new zombie({x:250,y:250}));
+			zombies.push(new Zombie({x:250,y:250}));
 	});
 
 });

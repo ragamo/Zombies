@@ -1,6 +1,6 @@
 (function(window, undefined) {
 
-	var zombie = function(configOverride) {
+	var Zombie = function(configOverride) {
 		var config = {
 			alcanceMax: 100,
 			deltaEspera: Math.random()*3+1,
@@ -8,15 +8,21 @@
 				width: 800,
 				height: 600
 			},
-			collideWith: []
+			collideWith: ['.wall']
 		};
 		jQuery.extend(true, config, configOverride);
 
 		var private = {
 			dom: null,
-			posActual: null,
+			posActual: {},
 			timerAutonomo: null,
 			timerSeguimiento: null,
+			dirLock: {
+				up: false,
+				left: false,
+				down: false,
+				right: false
+			},
 
 			run: function() {
 				this.create();
@@ -27,8 +33,14 @@
 				this.dom = jQuery('<div class="zombie"></div>');
 				this.dom.appendTo('body');
 
-				if(config.x) this.dom.css('left', config.x);
-				if(config.y) this.dom.css('top', config.y);
+				if(config.x) {
+					this.dom.css('left', config.x);
+					this.posActual.x = config.x;
+				}
+				if(config.y) {
+					this.dom.css('top', config.y);
+					this.posActual.y = config.y;
+				}
 				
 				return this.dom;
 			},
@@ -44,15 +56,15 @@
 			},
 
 			calcularNuevaPos: function() {
-				private.posActual = {
-					x: private.dom.offset().left,
-					y: private.dom.offset().top
-				};
-				
 				var direccion = Math.random()*(2*Math.PI); // Algun angulo entre 0 y 2PI
+				if(private.dirLock.up && direccion > ((Math.PI/2)-(Math.PI/4)) && direccion < ((Math.PI/2)+(Math.PI/4))) {
+					this.calcularNuevaPos();
+					console.log('recalculo');
+				}
+
 				var nuevaPos = {
-					x: private.posActual.x + config.alcanceMax * Math.cos(direccion),
-					y: private.posActual.y + config.alcanceMax * Math.sin(direccion)
+					x: private.posActual.x + (config.alcanceMax * Math.cos(direccion)),
+					y: private.posActual.y + (config.alcanceMax * Math.sin(direccion))
 				};
 				
 				if(nuevaPos.x < 0) nuevaPos.x = 0;
@@ -73,13 +85,48 @@
 				}, {
 					duration: 700 * config.deltaEspera,
 					easing: 'linear',
-					complete: function() {
+					queue: false,
+					done: function() {
+						private.dom.removeClass('left right');
+						if(_fnCallback)
+							_fnCallback();
+
+						console.log('complete');
+					},
+					/*start: function() {
+						private.stuck = false;
+					},*/
+					fail: function() {
+						console.log('fail');
 						private.dom.removeClass('left right');
 						if(_fnCallback)
 							_fnCallback();
 					},
 					progress: function(animation, percent, ms) {
-						//TODO: Comprobar hitTest
+						private.posActual = {
+							x: private.dom.offset().left,
+							y: private.dom.offset().top
+						};
+
+						if(private.hitTest()) {
+							console.log('stop');
+							console.log(animation);
+							private.dom.stop();
+							//animation.done();
+							//private.stuck = false;
+
+							/*private.dom.css({
+								top: private.posActual.y,
+								left: private.posActual.x
+							})*/
+
+							/*private.dom.removeClass('left right');
+							if(_fnCallback)
+								_fnCallback();*/
+
+
+						}
+						//console.log(private.posActual);
 					}
 				});
 			},
@@ -97,7 +144,21 @@
 			},
 
 			hitTest: function() {
+				var flagHitTest = false;
+
+				jQuery.each(config.collideWith, function(i, el) {
+					jQuery(el).each(function(i, elem) {
+
+						var elem = jQuery(elem);
+						if(!private.dirLock.up && private.posActual.y - 1 < elem.offset().top + elem.height()) {
+							private.dirLock.up = true;
+							flagHitTest = true;
+						}
+
+					});
+				});	
 				
+				return flagHitTest;
 			}
 		};
 
@@ -115,5 +176,5 @@
 
 	};
 
-	window.zombie = zombie;
+	window.Zombie = Zombie;
 })( window );
