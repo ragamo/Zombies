@@ -17,12 +17,8 @@
 			posActual: {},
 			timerAutonomo: null,
 			timerSeguimiento: null,
-			dirLock: {
-				up: false,
-				left: false,
-				down: false,
-				right: false
-			},
+			directionY: null,
+			dirLock: {},
 
 			run: function() {
 				this.create();
@@ -49,18 +45,49 @@
 				// Movimiento autonomo
 				var nuevaPos = private.calcularNuevaPos();
 				private.move(nuevaPos);
+
 				private.timerAutonomo = setInterval(function() {
 					var nuevaPos = private.calcularNuevaPos();
 					private.move(nuevaPos);
 				}, 1100 * config.deltaEspera);
 			},
 
-			calcularNuevaPos: function() {
-				var direccion = Math.random()*(2*Math.PI); // Algun angulo entre 0 y 2PI
-				if(private.dirLock.up && direccion > ((Math.PI/2)-(Math.PI/4)) && direccion < ((Math.PI/2)+(Math.PI/4))) {
-					this.calcularNuevaPos();
-					console.log('recalculo');
+			getRandomArbitrary: function(min, max) {
+				if(!max) return Math.random() * min;
+				return Math.random() * (max - min) + min;
+			},
+
+			calcularNuevaDireccion: function(min, max) {
+				var direccion = null;// = (min && max) ? this.getRandomArbitrary(min,max) : this.getRandomArbitrary(2*Math.PI); // Algun angulo entre 0 y 2PI
+
+				//Arriba
+				if(private.dirLock.up) {
+					private.dirLock.up = false;
+					direccion = this.getRandomArbitrary(Math.PI/4, 3*Math.PI/4);
+				} else if(private.dirLock.down) {
+					private.dirLock.down = false;
+					direccion = this.getRandomArbitrary((5*Math.PI)/4, (7*Math.PI)/4);
+				} else {
+					direccion = this.getRandomArbitrary(2*Math.PI);
 				}
+				//Abajo
+				/*else if(private.dirLock.down) {
+					private.dirLock.down = false;
+					return this.calcularNuevaDireccion((5*Math.PI)/4, (7*Math.PI)/4);
+				}*/
+
+				//Determina la direccion
+				if(direccion > Math.PI && direccion < 2*Math.PI) {
+					private.directionY = 'up';
+				} else if(direccion > 0 && direccion < Math.PI) {
+					private.directionY = 'down';
+				}
+
+				return direccion;
+			},
+
+			calcularNuevaPos: function() {
+				var direccion = this.calcularNuevaDireccion();
 
 				var nuevaPos = {
 					x: private.posActual.x + (config.alcanceMax * Math.cos(direccion)),
@@ -91,13 +118,13 @@
 						if(_fnCallback)
 							_fnCallback();
 
-						console.log('complete');
+						//console.log('complete');
 					},
 					/*start: function() {
 						private.stuck = false;
 					},*/
 					fail: function() {
-						console.log('fail');
+						//console.log('fail');
 						private.dom.removeClass('left right');
 						if(_fnCallback)
 							_fnCallback();
@@ -109,30 +136,22 @@
 						};
 
 						if(private.hitTest()) {
-							console.log('stop');
-							console.log(animation);
+							//console.log('stop');
+							//console.log(animation);
 							private.dom.stop();
-							//animation.done();
-							//private.stuck = false;
 
-							/*private.dom.css({
-								top: private.posActual.y,
-								left: private.posActual.x
-							})*/
-
+							//clearInterval(private.timerAutonomo);
+							//private.process();
 							/*private.dom.removeClass('left right');
 							if(_fnCallback)
 								_fnCallback();*/
-
-
 						}
-						//console.log(private.posActual);
 					}
 				});
 			},
 
 			goToTarget: function(targetPos) {
-				clearInterval(private.timerAutonomo);
+				/*clearInterval(private.timerAutonomo);
 				private.dom.addClass('angry').clearQueue().stop();
 				private.move(targetPos, function() {
 					clearTimeout(private.timerSeguimiento);
@@ -140,7 +159,7 @@
 						private.dom.removeClass('angry');
 						private.process();
 					}, 1000)
-				});
+				});*/
 			},
 
 			hitTest: function() {
@@ -148,16 +167,22 @@
 
 				jQuery.each(config.collideWith, function(i, el) {
 					jQuery(el).each(function(i, elem) {
-
 						var elem = jQuery(elem);
-						if(!private.dirLock.up && private.posActual.y - 1 < elem.offset().top + elem.height()) {
+
+						if(private.directionY == 'up' && private.posActual.y < elem.offset().top + elem.height() && private.posActual.y + private.dom.height() > elem.offset().top + elem.height()) {
 							private.dirLock.up = true;
+							flagHitTest = true;
+						}
+
+						if(private.directionY == 'down' && private.posActual.y + private.dom.height() > elem.offset().top && private.posActual.y < elem.offset().top + elem.height()) {
+							private.dirLock.down = true;
 							flagHitTest = true;
 						}
 
 					});
 				});	
 				
+				console.log('hitTest: '+flagHitTest);
 				return flagHitTest;
 			}
 		};

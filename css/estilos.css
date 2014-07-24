@@ -36,9 +36,17 @@ input {
 
 .wall {
 	background: #f00;
-	height: 10px;
-	width: 200px;
 	position: absolute;
-	top: 200px;
+}
+.wall.up {
+	top: 150px;
 	left: 100px;
+	height: 10px;
+	width: 400px;
+}
+.wall.down {
+	top: 400px;
+	left: 100px;
+	height: 10px;
+	width: 400px;
 }
