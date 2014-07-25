@@ -61,9 +61,11 @@
 				var direccion = null;
 
 				if(private.directionY == 'up') {
-					direccion = this.getRandomArbitrary(Math.PI/4, 3*Math.PI/4);
+					//direccion = this.getRandomArbitrary(Math.PI/4, 3*Math.PI/4);
+					direccion = this.getRandomArbitrary(0, Math.PI);
 				} else if(private.directionY == 'down') {
-					direccion = this.getRandomArbitrary((5*Math.PI)/4, (7*Math.PI)/4);
+					//direccion = this.getRandomArbitrary((5*Math.PI)/4, (7*Math.PI)/4);
+					direccion = this.getRandomArbitrary(Math.PI, 2*Math.PI);
 				} else {
 					direccion = this.getRandomArbitrary(2*Math.PI);
 				}
