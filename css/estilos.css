@@ -39,14 +39,26 @@ input {
 	position: absolute;
 }
 .wall.up {
-	top: 150px;
+	top: 100px;
 	left: 100px;
 	height: 10px;
 	width: 400px;
 }
 .wall.down {
-	top: 300px;
+	top: 400px;
 	left: 100px;
 	height: 10px;
 	width: 400px;
+}
+.wall.left {
+	top: 250px;
+	width: 10px;
+	height: 200px;
+	left: 200px;
+}
+.wall.right {
+	top: 50px;
+	width: 10px;
+	height: 150px;
+	left: 400px;
 }

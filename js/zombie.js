@@ -58,7 +58,7 @@
 			},
 
 			calcularNuevaDireccion: function(min, max) {
-				var direccion = null;// = (min && max) ? this.getRandomArbitrary(min,max) : this.getRandomArbitrary(2*Math.PI); // Algun angulo entre 0 y 2PI
+				var direccion = null;
 
 				if(private.directionY == 'up') {
 					direccion = this.getRandomArbitrary(Math.PI/4, 3*Math.PI/4);
@@ -74,6 +74,12 @@
 				} 
 				if(direccion > 0 && direccion < Math.PI) {
 					private.directionY = 'down';
+				}
+				if(direccion > Math.PI/2 && direccion < 3*Math.PI/2) {
+					private.directionX = 'left';
+				}
+				if(direccion < Math.PI/2 || direccion > 3*Math.PI/2) {
+					private.directionX = 'right';
 				}
 
 				return direccion;
@@ -107,18 +113,16 @@
 					easing: 'linear',
 					queue: false,
 					done: function() {
+						private.directionX = null;
 						private.directionY = null;
 						private.dom.removeClass('left right');
 						if(_fnCallback)
 							_fnCallback();
-
-						//console.log('complete');
 					},
 					/*start: function() {
 						private.stuck = false;
 					},*/
 					fail: function() {
-						//console.log('fail');
 						private.dom.removeClass('left right');
 						if(_fnCallback)
 							_fnCallback();
@@ -155,11 +159,27 @@
 					jQuery(el).each(function(i, elem) {
 						var elem = jQuery(elem);
 
-						if(private.directionY == 'up' && private.posActual.y <= elem.offset().top + elem.height() && private.posActual.y + private.dom.height() > elem.offset().top + elem.height()) {
+						if(private.directionY == 'up' && private.posActual.y < elem.offset().top + elem.height() && private.posActual.y + private.dom.height() > elem.offset().top + elem.height()) {
+							if(private.posActual.x > elem.offset().left + elem.width()) return;
+							if(private.posActual.x < elem.offset().left) return;
 							flagHitTest = true;
 							return;
 						}
 						if(private.directionY == 'down' && private.posActual.y + private.dom.height() > elem.offset().top && private.posActual.y < elem.offset().top) {
+							if(private.posActual.x > elem.offset().left + elem.width()) return;
+							if(private.posActual.x < elem.offset().left) return;
+							flagHitTest = true;
+							return;
+						}
+						if(private.directionX == 'left' && private.posActual.x < elem.offset().left + elem.width() && private.posActual.x + private.dom.width() > elem.offset().left + elem.width()) {
+							if(private.posActual.y > elem.offset().top + elem.height()) return;
+							if(private.posActual.y < elem.offset().top) return;
+							flagHitTest = true;
+							//return;
+						}
+						if(private.directionX == 'right' && private.posActual.x + private.dom.width() > elem.offset().left && private.posActual.x < elem.offset().left) {
+							if(private.posActual.y > elem.offset().top + elem.height()) return;
+							if(private.posActual.y < elem.offset().top) return;
 							flagHitTest = true;
 							return;
 						}
@@ -167,7 +187,7 @@
 					});
 				});	
 
-				console.log('hitTest: '+flagHitTest);
+				//console.log('hitTest: '+flagHitTest);
 				return flagHitTest;
 			}
 		};
