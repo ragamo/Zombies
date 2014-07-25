@@ -45,7 +45,7 @@ input {
 	width: 400px;
 }
 .wall.down {
-	top: 400px;
+	top: 300px;
 	left: 100px;
 	height: 10px;
 	width: 400px;
